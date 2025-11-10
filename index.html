@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ArcGIS Tools Catalog</title>
+  <meta name="description" content="Catalog of data analysis and management tools for ArcGIS Pro, ArcGIS Online, and ArcGIS Enterprise.">
+  <meta name="keywords" content="ArcGIS, GIS tools, data management, analysis, Esri, ArcGIS Pro, ArcGIS Online, ArcGIS Enterprise">
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f8fbff; margin: 0; color: #0b2545; }
+    header { background: #1659b6; color: white; padding: 1rem; text-align: center; }
+    h1 { margin: 0; }
+    .carousel-container { position: relative; overflow: hidden; width: 100%; margin: 1rem auto; }
+    .carousel { display: flex; transition: transform 0.5s ease; }
+    .carousel-card { flex: 0 0 100%; box-sizing: border-box; padding: 1rem; text-align: center; }
+    .carousel img { width: 100%; border-radius: 10px; max-height: 250px; object-fit: cover; }
+    .carousel-button { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(22,89,182,0.8); color: white; border: none; padding: 10px 20px; cursor: pointer; border-radius: 5px; }
+    .carousel-button:hover { background: #0b2545; }
+    #prevBtn { left: 10px; }
+    #nextBtn { right: 10px; }
+    .search-filter { text-align: center; margin: 1rem; }
+    input, select { padding: 0.5rem; border: 1px solid #ccc; border-radius: 5px; margin: 0.3rem; }
+    .cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 1rem; padding: 1rem; }
+    .card { background: white; width: 320px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); padding: 1rem; }
+    .card img { width: 100%; border-radius: 8px; }
+    .card h3 { color: #1659b6; }
+    .card button { margin-top: 5px; padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; color: white; background: #2a82d6; }
+    .card button:hover { background: #0b2545; }
+    footer { background: #1659b6; color: white; text-align: center; padding: 1rem; margin-top: 2rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ArcGIS Tools Catalog</h1>
+    <p>Data Analysis & Management Tools for ArcGIS Pro, ArcGIS Online, and Enterprise</p>
+  </header>
+
+  <div class="carousel-container">
+    <button id="prevBtn" class="carousel-button">&#10094;</button>
+    <div id="carousel" class="carousel"></div>
+    <button id="nextBtn" class="carousel-button">&#10095;</button>
+  </div>
+
+  <div class="search-filter">
+    <input type="text" id="searchBox" placeholder="Search tools...">
+    <select id="filterProduct">
+      <option value="">All Products</option>
+      <option value="ArcGIS Pro">ArcGIS Pro</option>
+      <option value="ArcGIS Online">ArcGIS Online</option>
+      <option value="ArcGIS Enterprise">ArcGIS Enterprise</option>
+    </select>
+  </div>
+
+  <div id="cards" class="cards"></div>
+
+  <footer>
+    <p>Contact us via email with the tool ID, your country, and contact email to receive payment instructions for donation.</p>
+  </footer>
+
+  <script>
+    let currentSlide = 0;
+    let toolsData = [];
+
+    async function loadTools() {
+      const res = await fetch('tools/index.json');
+      toolsData = await res.json();
+      renderCarousel();
+      renderCards();
+    }
+
+    function renderCarousel() {
+      const carousel = document.getElementById('carousel');
+      carousel.innerHTML = toolsData.map(tool => `
+        <div class='carousel-card'>
+          <img src='${tool.thumbnail}' alt='${tool.title}'>
+          <h3>${tool.title}</h3>
+          <p>${tool.description}</p>
+        </div>`).join('');
+    }
+
+    function moveSlide(direction) {
+      const carousel = document.getElementById('carousel');
+      const total = toolsData.length;
+      currentSlide = (currentSlide + direction + total) % total;
+      carousel.style.transform = `translateX(-${currentSlide * 100}%)`;
+    }
+
+    document.getElementById('prevBtn').onclick = () => moveSlide(-1);
+    document.getElementById('nextBtn').onclick = () => moveSlide(1);
+
+    function renderCards() {
+      const search = document.getElementById('searchBox').value.toLowerCase();
+      const productFilter = document.getElementById('filterProduct').value;
+      const cardsDiv = document.getElementById('cards');
+
+      const filtered = toolsData.filter(tool =>
+        (!search || tool.title.toLowerCase().includes(search) || tool.description.toLowerCase().includes(search)) &&
+        (!productFilter || tool.products.includes(productFilter))
+      );
+
+      cardsDiv.innerHTML = filtered.map(tool => `
+        <div class='card'>
+          <img src='${tool.thumbnail}' alt='${tool.title}'>
+          <h3>${tool.title}</h3>
+          <p>${tool.description}</p>
+          <button onclick="window.open('${tool.page}', '_blank')">🔍 View Details</button>
+          <button onclick="window.open('${tool.youtube}', '_blank')">🎬 View on YouTube</button>
+          <button onclick="window.open('${tool.download}', '_blank')">📦 Download Sample</button>
+        </div>`).join('');
+    }
+
+    document.getElementById('searchBox').addEventListener('input', renderCards);
+    document.getElementById('filterProduct').addEventListener('change', renderCards);
+
+    loadTools();
+  </script>
+</body>
+</html>
