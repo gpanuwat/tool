@@ -1,1 +1,14 @@
-
+[
+  {
+    "id": "TOOL-001",
+    "title": "Attribute Harmonizer",
+    "description": "Harmonize attribute fields across multiple layers for analysis and publishing.",
+    "categories": ["ArcGIS Pro", "Extension"],
+    "products": ["ArcGIS Pro"],
+    "updated": "2025-09-12T10:00:00Z",
+    "thumbnail": "tools/thumbs/tool1.jpg",
+    "page": "tools/tool1.html",
+    "youtube": "https://www.youtube.com/watch?v=example1",
+    "download": "https://drive.google.com/file/d/example1/view"
+  }
+]
